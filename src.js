@@ -1,7 +1,10 @@
+const CLIENT_WIDTH = document.documentElement.clientWidth;
+const CLIENT_HEIGHT = document.documentElement.clientHeight;
+
 const INIT_STATE = 1;
 const DIRTY_STATE = 2;
-const DISPLAY_HEIGHT = 800;
-const DISPLAY_WIDTH = 600;
+const DISPLAY_HEIGHT = Math.min(800, CLIENT_HEIGHT);
+const DISPLAY_WIDTH = Math.min(600, CLIENT_WIDTH);
 const INITZONE_HEIGHT = 100;
 const SENSOR_HEIGHT = 10;
 const SENSOR_PADDING_TOP = 50;
@@ -62,18 +65,12 @@ render.options.background = "#ffeba2";
 var mousedown = false;
 var last_mouse_pos = {};
 var move_active = true;
-document.body.onmousedown = function (event) {
+
+var mousedownFunc = function (event) {
   mousedown = true;
   last_mouse_pos = event;
 };
-document.body.onmouseup = function () {
-  if (!mousedown) return;
-  mousedown = false;
-  Body.setStatic(boxA, false);
-  boxA = null;
-  setTimeout(addCircle, 1000);
-};
-document.body.onmousemove = function (event) {
+var mousemoveFunc = function (event) {
   if (mousedown && move_active) {
     var target = {
       x: boxA.position.x + (event.x - last_mouse_pos.x),
@@ -88,6 +85,49 @@ document.body.onmousemove = function (event) {
     last_mouse_pos = event;
   }
 };
+var mouseupFunc = function () {
+  if (!mousedown) return;
+  mousedown = false;
+  Body.setStatic(boxA, false);
+  boxA = null;
+  setTimeout(addCircle, 1000);
+};
+
+var touchStart = false;
+var last_touch_pos = {};
+var touchStartFunc = function (event) {
+  touchStart = true;
+  last_touch_pos = event;
+};
+var touchMoveFunc = function (event) {
+  if (touchStart && move_active) {
+    var target = {
+      x: boxA.position.x + (event.touches[0].clientX - last_touch_pos.touches[0].clientX),
+      y: boxA.position.y
+    };
+    target.x = Math.min(
+      DISPLAY_WIDTH - boxA.circleRadius - WALL_THICKNESS / 2,
+      target.x
+    );
+    target.x = Math.max(boxA.circleRadius + WALL_THICKNESS / 2, target.x);
+    Body.setPosition(boxA, target);
+    last_touch_pos = event;
+  }
+};
+var touchEndFunc = function () {
+  if (!touchStart) return;
+  touchStart = false;
+  Body.setStatic(boxA, false);
+  boxA = null;
+  setTimeout(addCircle, 1000);
+};
+
+document.addEventListener("touchmove", touchMoveFunc);
+document.addEventListener("touchend", touchEndFunc);
+document.addEventListener("touchstart", touchStartFunc);
+document.body.onmousemove = mousemoveFunc;
+document.body.onmouseup = mouseupFunc;
+document.body.onmousedown = mousedownFunc;
 Events.on(engine, "collisionStart", function (event) {
   var pairs = event.pairs;
   for (var i = 0; i < pairs.length; i++) {
