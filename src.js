@@ -137,11 +137,13 @@ Events.on(engine, "collisionStart", function (event) {
       var sensor = bodyA.isSensor ? bodyA : bodyB;
       var other = bodyA.isSensor ? bodyB : bodyA;
       if (sensor === sensor_high) {
-        gameover();
+        //gameover();
+        setInterval(blink_sensor, 1000);
+        setTimeout(check_gameover, 5000);
       }
     }
 
-    if (bodyA.level === bodyB.level && bodyA.level < TOP_LEVEL) {
+    if (bodyA.level === bodyB.level && bodyA.level < TOP_LEVEL - 1) {
       var new_pos = {
         x: (bodyA.position.x + bodyB.position.x) / 2,
         y: (bodyA.position.y + bodyB.position.y) / 2
@@ -265,6 +267,7 @@ function addWalls() {
 
 function addCircle() {
   var level = Math.floor(Math.random() * 100) % INIT_MAX_LEVEL;
+  level = 7;
   var r = R_BY_LEVEL[level] * SCALE;
   boxA = Bodies.circle(DISPLAY_WIDTH / 2, INITZONE_HEIGHT / 2, r, {
     isStatic: true,
@@ -285,6 +288,7 @@ function addCircle() {
 function gameover() {
   score += uncertain_score;
   refresh_score();
+  clearTimeout();
   alert("gameover!");
   World.clear(engine.world, true);
   score = uncertain_score = 0;
@@ -297,4 +301,36 @@ function refresh_score() {
 
 function include_sensor(bodyA, bodyB) {
   return bodyA.isSensor || bodyB.isSensor;
+}
+
+function check_gameover() {
+  var targetBodies = engine.world.bodies.filter((e) => (!e.isSensor && !e.isStatic));
+  if (Matter.Query.collides(sensor_high, targetBodies).length > 0) {
+    gameover();
+  }
+  else {
+    clearInterval();
+  }
+}
+
+
+function blink_sensor() {
+
+  // if (sensor_high.render.strokeStyle !== "transparent") {
+  //   Body.set(sensor_high, "render", {
+  //     strokeStyle: "transparent",
+  //     fillStyle: "transparent",
+  //     lineWidth: 1
+  //   })
+
+  // }
+  // else {
+  //   Body.set(sensor_high, "render", {
+  //     strokeStyle: "#f55a3c",
+  //     fillStyle: "transparent",
+  //     lineWidth: 1
+  //   })
+  // }
+
+
 }
