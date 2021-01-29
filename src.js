@@ -267,7 +267,7 @@ function addWalls() {
 
 function addCircle() {
   var level = Math.floor(Math.random() * 100) % INIT_MAX_LEVEL;
-  level = 7;
+  //level = 7;
   var r = R_BY_LEVEL[level] * SCALE;
   boxA = Bodies.circle(DISPLAY_WIDTH / 2, INITZONE_HEIGHT / 2, r, {
     isStatic: true,
