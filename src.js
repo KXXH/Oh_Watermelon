@@ -285,7 +285,7 @@ function addCircle() {
     frictionAir: 0,
     frictionStatic: 0
     */
-    restitution: 0.8
+    //restitution: 0.8
   });
   boxA.touchFlag = false;
   World.add(engine.world, boxA);
