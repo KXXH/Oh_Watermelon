@@ -112,6 +112,7 @@ var touchMoveFunc = function (event) {
     target.x = Math.max(boxA.circleRadius + WALL_THICKNESS / 2, target.x);
     Body.setPosition(boxA, target);
     last_touch_pos = event;
+    event.preventDefault();
   }
 };
 var touchEndFunc = function () {
@@ -278,7 +279,13 @@ function addCircle() {
     level: level,
     render: {
       fillStyle: COLOR_BY_LEVEL[level]
-    }
+    },
+    /*
+    friction: 0,
+    frictionAir: 0,
+    frictionStatic: 0
+    */
+    restitution: 0.8
   });
   boxA.touchFlag = false;
   World.add(engine.world, boxA);
